@@ -9,7 +9,7 @@ require (
 	github.com/hashicorp/raft v1.0.0 // indirect
 	github.com/im-kulikov/helium v0.10.1
 	github.com/lib/pq v1.0.0 // indirect
-	github.com/nats-io/gnatsd v1.4.1 // indirect
+	github.com/nats-io/gnatsd v1.3.0 // indirect
 	github.com/nats-io/go-nats v1.7.2
 	github.com/nats-io/go-nats-streaming v0.4.0
 	github.com/nats-io/nats-streaming-server v0.11.2
