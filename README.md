@@ -1,5 +1,11 @@
 # NATS Module for Helium
 
+![Codecov](https://img.shields.io/codecov/c/github/go-helium/nats.svg?style=flat-square)
+[![Build Status](https://travis-ci.com/go-helium/nats.svg?branch=master)](https://travis-ci.com/go-helium/nats)
+[![Report](https://goreportcard.com/badge/github.com/go-helium/nats)](https://goreportcard.com/report/github.com/go-helium/nats)
+[![GitHub release](https://img.shields.io/github/release/go-helium/nats.svg)](https://github.com/go-helium/nats)
+![GitHub](https://img.shields.io/github/license/go-helium/nats.svg?style=popout)
+
 Module provides you with the following things:
 - [`*nats.Conn`](https://godoc.org/github.com/nats-io/go-nats#Conn) represents a bare connection to a nats-server. It can send and receive []byte payloads
 - [`stan.Conn`](https://godoc.org/github.com/nats-io/go-nats-streaming#Conn) represents a connection to the NATS Streaming subsystem. It can Publish and Subscribe to messages within the NATS Streaming cluster.
