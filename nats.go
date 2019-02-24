@@ -12,7 +12,7 @@ type (
 	// Config alias
 	Config = nats.Options
 
-	// StreamerConfig
+	// StreamerConfig for NSS client
 	StreamerConfig struct {
 		ClientID  string
 		ClusterID string
@@ -36,7 +36,7 @@ var (
 	ErrEmptyConfig = errors.New("nats empty config")
 	// ErrEmptyStreamerConfig when given empty options
 	ErrEmptyStreamerConfig = errors.New("nats-streamer empty config")
-	// ErrNoNatsConnection when empty nats.Conn
+	// ErrEmptyConnection when empty nats.Conn
 	ErrEmptyConnection = errors.New("nats connection empty")
 	// ErrClusterIDEmpty when empty clusterID
 	ErrClusterIDEmpty = errors.New("nats.cluster_id cannot be empty")
@@ -78,7 +78,7 @@ func NewDefaultConfig(v *viper.Viper) (*Config, error) {
 	}, nil
 }
 
-// NewDefaultConfig default settings for streaming connection
+// NewDefaultStreamerConfig default settings for streaming connection
 func NewDefaultStreamerConfig(v *viper.Viper, bus *Client) (*StreamerConfig, error) {
 	if !v.IsSet("nats") {
 		return nil, ErrEmptyConfig
