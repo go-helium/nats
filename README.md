@@ -7,8 +7,8 @@
 ![GitHub](https://img.shields.io/github/license/go-helium/nats.svg?style=popout)
 
 Module provides you with the following things:
-- [`*nats.Conn`](https://godoc.org/github.com/nats-io/go-nats#Conn) represents a bare connection to a nats-server. It can send and receive []byte payloads
-- [`stan.Conn`](https://godoc.org/github.com/nats-io/go-nats-streaming#Conn) represents a connection to the NATS Streaming subsystem. It can Publish and Subscribe to messages within the NATS Streaming cluster.
+- [`*nats.Conn`](https://godoc.org/github.com/nats-io/nats.go#Conn) represents a bare connection to a nats-server. It can send and receive []byte payloads
+- [`stan.Conn`](https://godoc.org/github.com/nats-io/stan.go#Conn) represents a connection to the NATS Streaming subsystem. It can Publish and Subscribe to messages within the NATS Streaming cluster.
 
 Configuration:
 - yaml example

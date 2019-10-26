@@ -2,9 +2,8 @@ package nats
 
 import (
 	"github.com/im-kulikov/helium/module"
-	"github.com/nats-io/go-nats"
-	"github.com/nats-io/go-nats-streaming"
-	"github.com/pkg/errors"
+	"github.com/nats-io/nats.go"
+	"github.com/nats-io/stan.go"
 	"github.com/spf13/viper"
 )
 
@@ -21,7 +20,26 @@ type (
 
 	// Client alias
 	Client = nats.Conn
+
+	// Error is constant error
+	Error string
 )
+
+const (
+	// ErrEmptyConfig when given empty options
+	ErrEmptyConfig = Error("nats empty config")
+	// ErrEmptyStreamerConfig when given empty options
+	ErrEmptyStreamerConfig = Error("nats-streamer empty config")
+	// ErrEmptyConnection when empty nats.Conn
+	ErrEmptyConnection = Error("nats connection empty")
+	// ErrClusterIDEmpty when empty clusterID
+	ErrClusterIDEmpty = Error("nats.cluster_id cannot be empty")
+	// ErrClientIDEmpty when empty clientID
+	ErrClientIDEmpty = Error("nats.client_id cannot be empty")
+)
+
+// Error returns error message string
+func (e Error) Error() string { return string(e) }
 
 var (
 	// Module is default Nats client
@@ -31,17 +49,6 @@ var (
 		{Constructor: NewDefaultStreamerConfig},
 		{Constructor: NewStreamer},
 	}
-
-	// ErrEmptyConfig when given empty options
-	ErrEmptyConfig = errors.New("nats empty config")
-	// ErrEmptyStreamerConfig when given empty options
-	ErrEmptyStreamerConfig = errors.New("nats-streamer empty config")
-	// ErrEmptyConnection when empty nats.Conn
-	ErrEmptyConnection = errors.New("nats connection empty")
-	// ErrClusterIDEmpty when empty clusterID
-	ErrClusterIDEmpty = errors.New("nats.cluster_id cannot be empty")
-	// ErrClientIDEmpty when empty clientID
-	ErrClientIDEmpty = errors.New("nats.client_id cannot be empty")
 )
 
 // NewDefaultConfig default settings for connection
