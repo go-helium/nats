@@ -5,6 +5,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
 	"github.com/spf13/viper"
+	"go.uber.org/dig"
 )
 
 type (
@@ -16,6 +17,14 @@ type (
 		ClientID  string
 		ClusterID string
 		Options   []stan.Option
+	}
+
+	StreamerParams struct {
+		dig.In
+
+		Bus              *Client
+		Viper            *viper.Viper
+		OnConnectionLost stan.ConnectionLostHandler `optional:"true"`
 	}
 
 	// Client alias
@@ -86,24 +95,54 @@ func NewDefaultConfig(v *viper.Viper) (*Config, error) {
 }
 
 // NewDefaultStreamerConfig default settings for streaming connection
-func NewDefaultStreamerConfig(v *viper.Viper, bus *Client) (*StreamerConfig, error) {
-	if !v.IsSet("nats") {
+func NewDefaultStreamerConfig(p StreamerParams) (*StreamerConfig, error) {
+	if !p.Viper.IsSet("nats") {
 		return nil, ErrEmptyConfig
 	}
 
 	var clusterID, clientID string
-	if clusterID = v.GetString("nats.cluster_id"); clusterID == "" {
+	if clusterID = p.Viper.GetString("nats.cluster_id"); clusterID == "" {
 		return nil, ErrClusterIDEmpty
 	}
 
-	if clientID = v.GetString("nats.client_id"); clientID == "" {
+	if clientID = p.Viper.GetString("nats.client_id"); clientID == "" {
 		return nil, ErrClientIDEmpty
+	}
+
+	// set options:
+	options := []stan.Option{stan.NatsConn(p.Bus)}
+
+	// ConnectWait(t time.Duration)
+	if v := p.Viper.GetDuration("nats.stan.connect_wait"); v > 0 {
+		options = append(options, stan.ConnectWait(v))
+	}
+
+	// PubAckWait(t time.Duration)
+	if v := p.Viper.GetDuration("nats.stan.pub_ack_wait"); v > 0 {
+		options = append(options, stan.PubAckWait(v))
+	}
+
+	// MaxPubAcksInflight(max int)
+	if v := p.Viper.GetInt("nats.stan.max_pub_acks_inflight"); v > 0 {
+		options = append(options, stan.MaxPubAcksInflight(v))
+	}
+
+	// Pings(interval, maxOut int)
+	pingMaxOut := p.Viper.GetInt("nats.stan.ping_max_out")
+	pingInterval := p.Viper.GetInt("nats.stan.ping_interval")
+	if pingMaxOut > 0 && pingInterval > 0 {
+		options = append(options, stan.Pings(pingInterval, pingMaxOut))
+	}
+
+	// SetConnectionLostHandler(handler ConnectionLostHandler)
+	if p.OnConnectionLost != nil {
+		options = append(options, stan.SetConnectionLostHandler(p.OnConnectionLost))
 	}
 
 	return &StreamerConfig{
 		ClientID:  clientID,
 		ClusterID: clusterID,
-		Options:   []stan.Option{stan.NatsConn(bus)},
+		Options:   options,
 	}, nil
 }
 

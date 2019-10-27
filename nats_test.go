@@ -1,12 +1,13 @@
 package nats
 
 import (
-	"github.com/nats-io/nats.go"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/nats-io/nats-streaming-server/server"
+	"github.com/nats-io/nats.go"
+	"github.com/nats-io/stan.go"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
 
 func RunServer(ID string) *server.StanServer {
@@ -18,7 +19,6 @@ func RunServer(ID string) *server.StanServer {
 }
 
 func TestNewDefaultConfig(t *testing.T) {
-
 	t.Run("must fail on empty", func(t *testing.T) {
 		v := viper.New()
 		c, err := NewDefaultConfig(v)
@@ -98,7 +98,7 @@ func TestNewDefaultConfig(t *testing.T) {
 
 	t.Run("should fail with empty config", func(t *testing.T) {
 		v := viper.New()
-		cfg, err := NewDefaultStreamerConfig(v, nil)
+		cfg, err := NewDefaultStreamerConfig(StreamerParams{Viper: v})
 		require.Nil(t, cfg)
 		require.EqualError(t, err, ErrEmptyConfig.Error())
 	})
@@ -106,7 +106,7 @@ func TestNewDefaultConfig(t *testing.T) {
 	t.Run("should fail with empty clusterID", func(t *testing.T) {
 		v := viper.New()
 		v.SetDefault("nats.cluster_id", "")
-		cfg, err := NewDefaultStreamerConfig(v, nil)
+		cfg, err := NewDefaultStreamerConfig(StreamerParams{Viper: v})
 		require.Nil(t, cfg)
 		require.EqualError(t, err, ErrClusterIDEmpty.Error())
 	})
@@ -114,7 +114,7 @@ func TestNewDefaultConfig(t *testing.T) {
 	t.Run("should fail with empty clientID", func(t *testing.T) {
 		v := viper.New()
 		v.SetDefault("nats.cluster_id", "myCluster")
-		cfg, err := NewDefaultStreamerConfig(v, nil)
+		cfg, err := NewDefaultStreamerConfig(StreamerParams{Viper: v})
 		require.Nil(t, cfg)
 		require.EqualError(t, err, ErrClientIDEmpty.Error())
 	})
@@ -125,13 +125,13 @@ func TestNewDefaultConfig(t *testing.T) {
 		v.SetDefault("nats.client_id", "myClient")
 		v.SetDefault("nats.cluster_id", "myCluster")
 
-		cfg, err := NewDefaultStreamerConfig(v, nil)
+		cfg, err := NewDefaultStreamerConfig(StreamerParams{Viper: v})
 		require.NoError(t, err)
 
 		cfg.Options = nil
 
-		stan, err := NewStreamer(cfg)
-		require.Nil(t, stan)
+		serve, err := NewStreamer(cfg)
+		require.Nil(t, serve)
 		require.EqualError(t, err, ErrEmptyConnection.Error())
 	})
 
@@ -139,6 +139,13 @@ func TestNewDefaultConfig(t *testing.T) {
 		v := viper.New()
 		v.SetDefault("nats.client_id", "myClient")
 		v.SetDefault("nats.cluster_id", "myCluster")
+
+		// stan options:
+		v.SetDefault("nats.stan.connect_wait", stan.DefaultConnectWait)
+		v.SetDefault("nats.stan.pub_ack_wait", stan.DefaultAckWait)
+		v.SetDefault("nats.stan.ping_max_out", stan.DefaultPingMaxOut)
+		v.SetDefault("nats.stan.ping_interval", stan.DefaultPingInterval)
+		v.SetDefault("nats.stan.max_pub_acks_inflight", stan.DefaultMaxPubAcksInflight)
 
 		// Run a NATS Streaming server
 		s := RunServer("myCluster")
@@ -149,7 +156,11 @@ func TestNewDefaultConfig(t *testing.T) {
 
 		defer con.Close()
 
-		cfg, err := NewDefaultStreamerConfig(v, con)
+		cfg, err := NewDefaultStreamerConfig(StreamerParams{
+			Viper:            v,
+			Bus:              con,
+			OnConnectionLost: func(stan.Conn, error) {},
+		})
 		require.NoError(t, err)
 
 		st, err := NewStreamer(cfg)

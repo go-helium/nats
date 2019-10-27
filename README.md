@@ -35,6 +35,12 @@ nats:
   user: string
   password: string
   token: string
+  stan:
+    connect_wait: duration
+    pub_ack_wait: duration
+    max_pub_acks_inflight: int
+    ping_max_out: int
+    ping_interval: int
 ```
 - env example
 ```
@@ -59,4 +65,9 @@ NATS_SUB_CHAN_LEN=int
 NATS_USER=string
 NATS_PASSWORD=string
 NATS_TOKEN=string
+NATS_STAN_CONNECT_WAIT=duration
+NATS_STAN_PUB_ACK_WAIT=duration
+NATS_STAN_MAX_PUB_ACKS_INFLIGHT=int
+NATS_STAN_PING_MAX_OUT=int
+NATS_STAN_PING_INTERVAL=int
 ```
