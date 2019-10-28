@@ -19,6 +19,7 @@ type (
 		Options   []stan.Option
 	}
 
+	// StreamerParams param to initialize streamer client instance
 	StreamerParams struct {
 		dig.In
 
