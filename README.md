@@ -44,10 +44,12 @@ nats:
 ```
 - env example
 ```
+NATS_SERVERS_0=nats://<host>:<port>
+...
+NATS_SERVERS_<N>=nats://<host>:<port>
 NATS_URL=nats://<host>:<port>
 NATS_CLUSTER_ID=string
 NATS_CLIENT_ID=string
-NATS_SERVERS=[...server slice...]
 NATS_NO_RANDOMIZE=bool
 NATS_NAME=string
 NATS_VERBOSE=bool
