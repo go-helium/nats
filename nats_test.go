@@ -55,6 +55,26 @@ func TestNewDefaultConfig(t *testing.T) {
 		require.Equal(t, c.Url, url)
 	})
 
+	t.Run("should fetch nats.servers_0", func(t *testing.T) {
+		v := viper.New()
+		v.SetDefault("nats.servers_0", nats.DefaultURL)
+
+		c, err := NewDefaultConfig(v)
+		require.NoError(t, err)
+		require.Len(t, c.Servers, 1)
+		require.Equal(t, c.Servers[0], nats.DefaultURL)
+	})
+
+	t.Run("should fetch nats.servers", func(t *testing.T) {
+		v := viper.New()
+		v.SetDefault("nats.servers", []string{nats.DefaultURL})
+
+		c, err := NewDefaultConfig(v)
+		require.NoError(t, err)
+		require.Len(t, c.Servers, 1)
+		require.Equal(t, c.Servers[0], nats.DefaultURL)
+	})
+
 	t.Run("should fail for empty config", func(t *testing.T) {
 		c, err := NewConnection(nil)
 		require.Nil(t, c)

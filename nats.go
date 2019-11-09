@@ -1,6 +1,8 @@
 package nats
 
 import (
+	"strconv"
+
 	"github.com/im-kulikov/helium/module"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
@@ -61,6 +63,27 @@ var (
 	}
 )
 
+func fetchAddresses(key string, v *viper.Viper) []string {
+	var (
+		addresses []string
+	)
+
+	for i := 0; ; i++ {
+		addr := v.GetString(key + "_" + strconv.Itoa(i))
+		if addr == "" {
+			break
+		}
+
+		addresses = append(addresses, addr)
+	}
+
+	if len(addresses) == 0 {
+		addresses = v.GetStringSlice(key)
+	}
+
+	return addresses
+}
+
 // NewDefaultConfig default settings for connection
 func NewDefaultConfig(v *viper.Viper) (*Config, error) {
 	if !v.IsSet("nats") {
@@ -68,8 +91,8 @@ func NewDefaultConfig(v *viper.Viper) (*Config, error) {
 	}
 
 	var servers []string
-	if v.IsSet("nats.servers") {
-		servers = v.GetStringSlice("nats.servers")
+	if addresses := fetchAddresses("nats.servers", v); len(addresses) > 0 {
+		servers = addresses
 	}
 
 	return &Config{
